@@ -1,6 +1,8 @@
 from functools import lru_cache
 from typing import Dict, Type
 
+from fastapi_jwt_auth import AuthJWT
+
 from app.core.settings.app import AppSettings
 from app.core.settings.base import AppEnvTypes, BaseAppSettings
 from app.core.settings.development import DevAppSettings
@@ -19,3 +21,6 @@ def get_app_settings() -> AppSettings:
     app_env = BaseAppSettings().app_env  # get from env
     config = environments[app_env]
     return config()
+
+
+AuthJWT.load_config(get_app_settings)

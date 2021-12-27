@@ -16,7 +16,7 @@ class AppSettings(BaseAppSettings):
     openapi_url: str = "/openapi.json"
     redoc_url: str = "/redoc"
     title: str = "FastAPI JBook application"
-    version: str = "0.0.1"
+    version: str = "0.0.2"
 
     database_url: str
     database_alembic_url: str
@@ -24,11 +24,14 @@ class AppSettings(BaseAppSettings):
     max_connection_count: int = 10
     min_connection_count: int = 10
 
+    authjwt_header_name: str = 'Authorization'
+    authjwt_secret_key: str = "secret"
+    authjwt_algorithm: str = "HS256"
+    authjwt_header_type: str = 'Bearer'
+
     secret_key: SecretStr
 
     api_prefix: str = "/api"
-
-    jwt_token_prefix: str = "Token"
 
     allowed_hosts: List[str] = ["*"]
 
