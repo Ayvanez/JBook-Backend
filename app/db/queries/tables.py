@@ -12,9 +12,9 @@ class User(Base):
     __tablename__ = 'user'
     __table_args__ = {"schema": "jbook"}
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    username = Column(String(255), unique=True, nullable=False)
-    status = Column(String(25), default='active')
+    uid = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+    first_name = Column(String(250), nullable=True)
+    surname = Column(String(250), nullable=True)
 
 
 class BookAuthor(Base):
@@ -110,8 +110,9 @@ class BookComment(Base):
     __table_args__ = {"schema": "jbook"}
 
     id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
-    book_id = Column(Integer, ForeignKey("book.id"))
-    user_id = Column(Integer, ForeignKey("user.id"))
+    book_id= Column(Integer, ForeignKey("book.id"))
+    user_uid = Column(UUID(as_uuid=True), ForeignKey('user.uid'))
+    user = relationship(User, backref='comments')
     pub_date = Column(TIMESTAMP, server_default=func.now())
     content = Column(Text)
 
@@ -122,8 +123,9 @@ class BookRate(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     book_id = Column(Integer, ForeignKey("book.id"))
-    user_id = Column(Integer, ForeignKey("user.id"))
+    user_uid = Column(UUID(as_uuid=True), ForeignKey('user.uid'))
     rate = Column(Integer)
+    rated_at = Column(TIMESTAMP, server_default=func.now())
 
 
 m2m_shelf_shelf_tag = Table(
@@ -167,6 +169,8 @@ class BookInShelf(Base):
     id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     book_id = Column(Integer, ForeignKey("book.id"))
     shelf_uid = Column(UUID(as_uuid=True), ForeignKey('shelf.uid'), primary_key=True, default=uuid.uuid4)
+    tags = relationship('BookInShelfTag', secondary=m2m_book_in_shelf_tag, lazy='joined')
+    book = relationship(Book, lazy='joined')
 
 
 class Shelf(Base):
@@ -181,15 +185,15 @@ class Shelf(Base):
     avatar_id = Column(Integer, ForeignKey("shelf_image.id"))
     avatar = relationship(ShelfImage, backref="shelved")
 
-    user_id = Column(Integer, ForeignKey("user.id"))
-    user = relationship(User, backref="shelved")
+    user_uid = Column(UUID(as_uuid=True), ForeignKey('user.uid'))
+    user = relationship(User, backref="shelved", lazy="selectin")
 
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.current_timestamp())
 
-    tags = relationship(ShelfTag, secondary=m2m_shelf_shelf_tag, backref='shelves')
+    tags = relationship(ShelfTag, secondary=m2m_shelf_shelf_tag, backref='shelves', lazy="selectin")
 
-    books_in_shelf = relationship(BookInShelf, backref='shelf')
+    books_in_shelf = relationship(BookInShelf, backref='shelf', lazy="selectin")
 
 
 class ShelfRate(Base):
@@ -197,8 +201,8 @@ class ShelfRate(Base):
     __table_args__ = {"schema": "jbook"}
 
     id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
-    user_id = Column(Integer, ForeignKey("user.id"))
-    shelf_uid = Column(UUID(as_uuid=True), ForeignKey('shelf.uid'), primary_key=True, default=uuid.uuid4)
+    user_uid = Column(UUID(as_uuid=True), ForeignKey('user.uid'), primary_key=True)
+    shelf_uid = Column(UUID(as_uuid=True), ForeignKey('shelf.uid'), primary_key=True)
     rate = Column(Integer)
 
 
@@ -208,6 +212,18 @@ class BookInShelfTag(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     name = Column(String(50))
+
+class ShelfComment(Base):
+    __tablename__ = "shelf_comment"
+    __table_args__ = {"schema": "jbook"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
+    shelf_uid = Column(UUID(as_uuid=True), ForeignKey("shelf.uid"))
+    user_uid = Column(UUID(as_uuid=True), ForeignKey('user.uid'))
+    user = relationship(User, backref='shelf_comments')
+
+    pub_date = Column(TIMESTAMP, server_default=func.now())
+    content = Column(Text)
 
 
 metadata = Base.metadata
