@@ -1,12 +1,19 @@
 FROM python:3.10-slim
 
-WORKDIR /code
-
-ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-COPY ./requirements.txt /code/requirements.txt
+EXPOSE 8000
+WORKDIR /app
 
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-COPY ./app /code/app
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends netcat && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+COPY ./requiremets.txt /app/requiremets.txt
+
+COPY . ./
+RUN pip install --no-cache-dir --upgrade -r /app/requiremets.txt
+
+CMD alembic upgrade head && \
+    uvicorn --host=0.0.0.0 app.main:app --reload
