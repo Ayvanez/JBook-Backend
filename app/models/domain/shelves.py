@@ -1,14 +1,20 @@
 import datetime
+from typing import Optional
+from uuid import UUID
 
 from app.models.common import DateTimeModelMixin, IDModelMixin
-from app.models.domain.books import Book
+from app.models.domain.books import Book, BookMinimized
 from app.models.domain.users import User
 from app.models.domain.rwmodel import RWModel
 
 
+class ShelfTag(RWModel):
+    name: str
+
+
 class BookInShelf(IDModelMixin, RWModel):
-    book: Book
-    tags: list[str]
+    book: BookMinimized
+    tags: list[ShelfTag]
 
 
 class ShelfImage(IDModelMixin, RWModel):
@@ -16,14 +22,14 @@ class ShelfImage(IDModelMixin, RWModel):
     alt_text: str
 
 
-class Shelf(DateTimeModelMixin, RWModel):
+class Shelf(RWModel):
     books_in_shelf: list[BookInShelf]
-    uid: str
+    uid: UUID
     name: str
     description: str
     type: str
-    avatar: ShelfImage
+    avatar: Optional[ShelfImage]
     user: User
-    tags: list[str]
-    created_at: datetime
-    updated_at: datetime
+    tags: list[ShelfTag]
+    created_at: datetime.datetime
+    updated_at: datetime.datetime

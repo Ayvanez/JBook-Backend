@@ -1,3 +1,4 @@
+import datetime
 from typing import Optional
 
 from pydantic import Field
@@ -41,7 +42,16 @@ class ListOfBookCategoriesInResponse(RWSchema):
 
 
 class BookRateInCreate(RWSchema):
-    rate: int
+    rate: int = Field(ge=1, le=5)
+
+
+class BookRateForResponse(RWSchema):
+    rate: int = Field(ge=1, le=5)
+    rated_at: datetime.datetime
+
+
+class BookRateInResponse(RWSchema):
+    rate: BookRateForResponse
 
 
 class BooksFilter(RWSchema):

@@ -43,6 +43,11 @@ class Book(IDModelMixin, DateTimeModelMixin, RWModel):
     images: List[BookImage]
 
 
+class BookMinimized(IDModelMixin, RWModel):
+    id: int
+    title: str
+
+
 class BookComment(IDModelMixin, RWModel):
     user: User
     book: Book
