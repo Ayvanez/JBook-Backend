@@ -50,7 +50,7 @@ async def get_all_tags(
     return ListOfBookAuthorInResponse(authors=authors)
 
 
-@router.get("/categories/", response_model=ListOfBookCategoriesInResponse, name="books:book-categories")
+@router.get("/categories/", response_model=ListOfBookCategoriesInResponse, name="books:bookl-categories")
 async def get_all_tags(
         category_repo: BookCategoryRepository = Depends(get_repository(BookCategoryRepository)),
 ) -> ListOfBookCategoriesInResponse:

@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
+from fastapi_jwt_auth.exceptions import AuthJWTException
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 from app.api.errors.http_error import http_error_handler
 from app.api.errors.validation_error import http422_error_handler
@@ -34,8 +37,15 @@ def get_application() -> FastAPI:
         create_stop_app_handler(application),
     )
 
+    @application.exception_handler(AuthJWTException)
+    def authjwt_exception_handler(request: Request, exc: AuthJWTException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.message}
+        )
+    # TODO ^
     application.add_exception_handler(HTTPException, http_error_handler)
-    application.add_exception_handler(RequestValidationError, http422_error_handler)
+    application.add_exception_handler(ValueError, http422_error_handler)
 
     application.include_router(api_router, prefix=settings.api_prefix)
 
