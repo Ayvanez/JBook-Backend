@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jbook-back
+  labels:
+    app: jbook-back
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jbook-back
+  template:
+    metadata:
+      labels:
+        app: jbook-back
+    spec:
+      containers:
+        - name: jbook-back
+          image: registry.gitlab.com/j-book/j-book-backend:latest
+          ports:
+            - containerPort: 8000
+          imagePullPolicy: Always
+          resources:
+            # You must specify requests for CPU to autoscale
+            # based on CPU utilization
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+      imagePullSecrets:
+        - name: gitlab-token
